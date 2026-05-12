@@ -19,7 +19,7 @@ GRAVITY = 200 #Pulls the hero downward after jumping
 
 NUMBER_OF_BACKGROUND = 2  #2 bg
 GAME_SPEED = 100 # speed of game movement
-JUMP_SPEED = 200 #upward speed when hero jump
+JUMP_HEIGHT = 100 #height of the hero's jump
 
 # hero initialisation
 hero = Actor("leek1", anchor=('middle', 'bottom')) # here leek1 is starting image
@@ -161,6 +161,6 @@ def on_key_down(key):
     if key == keys.SPACE:
 
         if hero_speed <= 0:
-            hero_speed = JUMP_SPEED
+            hero_speed = JUMP_HEIGHT
 
 pgzrun.go()
