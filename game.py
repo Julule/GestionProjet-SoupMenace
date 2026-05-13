@@ -19,9 +19,21 @@ GAME_SPEED = 100 # speed of game movement
 JUMP_HEIGHT = 100 #height of the hero's jump
 
 # hero initialisation
-hero = Actor("hero", anchor=('middle', 'bottom'))
+hero = Actor("leek1", anchor=('middle', 'bottom')) # here leek1 is starting image
 hero.pos = (64, GROUND) #place hero at x = 64, y = G
 hero_speed = 0 #means hero can not move vertically
+
+hero_image = ["leek1", "leek2", "leek3"]  #these 3 image stored for animation(gif)
+image_index = 0 #This keeps track of which image is currently being shown.
+
+def animate_hero():#Defines a function that changes the hero’s image
+    global image_index #Without global, Python would think image_index is a new local variable inside the function.
+    image_index += 1 #each time moves to nex image frame,0 -> 1-> 2->....
+    if image_index >= len(hero_image): # hero img. 3 - it will valid until image_index reset back to 0
+        image_index = 0
+    hero.image = hero_image[image_index] #change the hero current image
+
+clock.schedule_interval(animate_hero, 0.2) #each 0.2 secondplay the function hero 
 
 #life count
 heart = Actor("heart")
