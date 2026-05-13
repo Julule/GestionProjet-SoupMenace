@@ -7,6 +7,9 @@ from pgzero.actor import Actor
 import pgzrun
 
 
+
+# hero initialisation
+
 WIDTH = 800
 HEIGHT = 600
 
