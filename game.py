@@ -1,12 +1,9 @@
 # game data
 
-
 #from argparse import Action
 from random import randint
 from pgzero.actor import Actor
 import pgzrun
-
-
 
 # hero initialisation
 
@@ -14,12 +11,17 @@ WIDTH = 800
 HEIGHT = 600
 
 #game phtsics & settings - Groung & Gravity
-GROUND = 458 # y-position hero stand here
+GROUND = 458 # y-position hero stand here (height 600)
 GRAVITY = 200 #Pulls the hero downward after jumping
 
 NUMBER_OF_BACKGROUND = 2  #2 bg
 GAME_SPEED = 100 # speed of game movement
-JUMP_HEIGHT = 100 #height of the hero's jump
+JUMP_HEIGHT = 250 #height of the hero's jump
+
+#1.Anemy box movement up-down 
+BOX_UP_DOWN_SPEED = 120 # speed of box up-down movement
+BOX_MIN_HEIGHT = 20 # minimum height box can go up
+BOX_MAX_HEIGHT = 200 # maximum height box can go up
 
 # hero initialisation
 hero = Actor("leek1", anchor=('middle', 'bottom')) # here leek1 is starting image
@@ -44,7 +46,7 @@ live = 3 #live score variable
 score = 0 # create a sore variable
 
 # enemies initialisations
-BOX_APPARTION = (2, 5) # enemy boxes appear every 2 to 5 second rendomly
+BOX_APPARTION = (2, 7) # enemy boxes appear every 2 to 5 second rendomly
 next_box_time = randint(BOX_APPARTION[0], BOX_APPARTION[1])  #Chooses random starting spawn time
 boxes = []
 
@@ -100,13 +102,32 @@ def update(dt):
     if next_box_time <= 0:
         box = Actor("box", anchor=('left', 'bottom'))
         box.pos = WIDTH, GROUND
+
+         # 2.Enemy OX RANDOM UP-DOWN MOVEMENT
+        box.direction = -1 # -1 means box starts going up first
+        box.jump_height = randint(BOX_MIN_HEIGHT,BOX_MAX_HEIGHT) # each box gets different height
         boxes.append(box)
         next_box_time = randint(BOX_APPARTION[0], BOX_APPARTION[1])
 
     for box in boxes[:]: #for each box inside this loop, box1,box2..
         x, y = box.pos
         x -= GAME_SPEED * dt
+
+        #Box random up-down movement, box goes-up
+        y += box.direction * BOX_UP_DOWN_SPEED * dt #Move box up-down
+
+         # If box reaches its own random top height, then move down
+        if y <= GROUND - box.jump_height:
+            y = GROUND - box.jump_height
+            box.direction = 1
+       
+       # If box reaches ground again, then move up
+        if y >= GROUND:
+            y = GROUND
+            box.direction = -1
+
         box.pos = x, y
+
 
         if box.colliderect(hero):
             live -= 1
@@ -160,7 +181,9 @@ def on_key_down(key):
     # jump
     if key == keys.SPACE:
 
-        if hero_speed <= 0:
+        #if hero_speed <= 0:
+        #if hero.y == GROUND: #the single jump
+        if key == keys.SPACE and hero.y >= GROUND: # the single jump
             hero_speed = JUMP_HEIGHT
 
 pgzrun.go()
