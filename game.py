@@ -11,21 +11,21 @@ WIDTH = 800
 HEIGHT = 600
 
 #game phtsics & settings - Groung & Gravity
-GROUND = 458 # y-position hero stand here (height 600)
+GROUND = 464 # y-position hero stand here (height 600)
 GRAVITY = 200 #Pulls the hero downward after jumping
 
 NUMBER_OF_BACKGROUND = 2  #2 bg
 GAME_SPEED = 100 # speed of game movement
-<<<<<<< HEAD
+#<<<<<<< HEAD
 JUMP_SPEED = 200 #upward speed when hero jump
-=======
+#=======
 JUMP_HEIGHT = 250 #height of the hero's jump
 
 #1.Anemy box movement up-down 
 BOX_UP_DOWN_SPEED = 120 # speed of box up-down movement
 BOX_MIN_HEIGHT = 20 # minimum height box can go up
 BOX_MAX_HEIGHT = 200 # maximum height box can go up
->>>>>>> c3afb712b77265f547fb09642c37bd8225fb9298
+#>>>>>>> c3afb712b77265f547fb09642c37bd8225fb9298
 
 # hero initialisation
 hero = Actor("leek1", anchor=('middle', 'bottom')) # here leek1 is starting image
@@ -44,6 +44,23 @@ def animate_hero():#Defines a function that changes the hero’s image
 
 clock.schedule_interval(animate_hero, 0.2) #each 0.2 secondplay the function hero 
 
+#------------------------------------------------------------------------------------------------------------------------
+
+cat = Actor("cat1", anchor=('middle', 'bottom')) 
+cat.pos = (600, 365) 
+cat_speed = 0
+
+cat_sprite = ["cat1", "cat2", "cat3", "cat4", "cat5"]
+
+def animate_cat():
+    global image_index
+    image_index += 1
+    if image_index >= len(cat_sprite):
+        image_index = 0
+    cat.image = cat_sprite[image_index]
+
+clock.schedule_interval(animate_cat, 0.5) 
+
 #life count
 heart = Actor("heart")
 live = 3 #live score variable
@@ -60,11 +77,11 @@ backgrounds_bottom = []
 backgrounds_top = []
 
 for n in range(NUMBER_OF_BACKGROUND):#run twice becz. number of bg = 2 bg
-    bg_b = Actor("bg_1", anchor=('left', 'top')) #bottom bg
+    bg_b = Actor("table", anchor=('left', 'top')) #bottom bg
     bg_b.pos = n * WIDTH, 0
     backgrounds_bottom.append(bg_b)
 
-    bg_t = Actor("bg_2", anchor=('left', 'top')) # bg top
+    bg_t = Actor("kitchen_background", anchor=('left', 'top')) # bg top
     bg_t.pos = n * WIDTH, 0
     backgrounds_top.append(bg_t)
 
@@ -77,6 +94,8 @@ def draw():
 
     for bg in backgrounds_top:
         bg.draw()
+
+    cat.draw()
 
     for box in boxes:
         box.draw()
@@ -185,14 +204,14 @@ def on_key_down(key):
     # jump
     if key == keys.SPACE:
 
-<<<<<<< HEAD
+#<<<<<<< HEAD
         if hero_speed <= 0:
             hero_speed = JUMP_SPEED
-=======
+#=======
         #if hero_speed <= 0:
         #if hero.y == GROUND: #the single jump
         if key == keys.SPACE and hero.y >= GROUND: # the single jump
             hero_speed = JUMP_HEIGHT
->>>>>>> c3afb712b77265f547fb09642c37bd8225fb9298
+#>>>>>>> c3afb712b77265f547fb09642c37bd8225fb9298
 
 pgzrun.go()
