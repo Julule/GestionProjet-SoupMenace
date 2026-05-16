@@ -19,7 +19,7 @@ GAME_SPEED = 100 # speed of game movement
 #<<<<<<< HEAD
 JUMP_SPEED = 200 #upward speed when hero jump
 #=======
-JUMP_HEIGHT = 250 #height of the hero's jump
+JUMP_HEIGHT = 350 #height of the hero's jump
 
 #1.Anemy box movement up-down 
 BOX_UP_DOWN_SPEED = 120 # speed of box up-down movement
@@ -33,7 +33,7 @@ hero.pos = (64, GROUND) #place hero at x = 64, y = G
 hero_speed = 0 #means hero can not move vertically
 
 hero_image = ["leek1", "leek2", "leek3"]  #these 3 image stored for animation(gif)
-image_index = 0 #This keeps track of which image is currently being shown.
+image_index = 0 #use this variable for hero,This keeps track of which image is currently being shown.
 
 def animate_hero():#Defines a function that changes the hero’s image
     global image_index #Without global, Python would think image_index is a new local variable inside the function.
@@ -122,8 +122,9 @@ def update(dt):
 
     next_box_time -= dt #enemies update
 
+
     if next_box_time <= 0:
-        box = Actor("box", anchor=('left', 'bottom'))
+        box = Actor("knife", anchor=('left', 'bottom'))
         box.pos = WIDTH, GROUND
 
          # 2.Enemy OX RANDOM UP-DOWN MOVEMENT
@@ -204,14 +205,14 @@ def on_key_down(key):
     # jump
     if key == keys.SPACE:
 
-#<<<<<<< HEAD
-        if hero_speed <= 0:
-            hero_speed = JUMP_SPEED
-#=======
+
+        #if hero_speed <= 0:
+         #   hero_speed = JUMP_SPEED
+
         #if hero_speed <= 0:
         #if hero.y == GROUND: #the single jump
         if key == keys.SPACE and hero.y >= GROUND: # the single jump
             hero_speed = JUMP_HEIGHT
-#>>>>>>> c3afb712b77265f547fb09642c37bd8225fb9298
+
 
 pgzrun.go()
