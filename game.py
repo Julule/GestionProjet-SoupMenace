@@ -44,11 +44,10 @@ def animate_hero():#Defines a function that changes the hero’s image
 
 clock.schedule_interval(animate_hero, 0.2) #each 0.2 secondplay the function hero 
 
-#------------------------------------------------------------------------------------------------------------------------
+#------------------------------------------ CAT SPRITES ------------------------------------------------
 
 cat = Actor("cat1", anchor=('middle', 'bottom')) 
-cat.pos = (600, 365) 
-cat_speed = 0
+cat.pos = (-200, 365) 
 
 cat_sprite = ["cat1", "cat2", "cat3", "cat4", "cat5"]
 
@@ -60,6 +59,8 @@ def animate_cat():
     cat.image = cat_sprite[image_index]
 
 clock.schedule_interval(animate_cat, 0.5) 
+
+#------------------------------------------------------------------------------------------------------
 
 #life count
 heart = Actor("heart")
@@ -121,6 +122,11 @@ def update(dt):
     global next_box_time, hero_speed, live, score
 
     next_box_time -= dt #enemies update
+
+    for i in cat:
+        x, y = cat.pos
+        x -= GAME_SPEED/8 * -dt
+        cat.pos = x, y
 
     if next_box_time <= 0:
         box = Actor("box", anchor=('left', 'bottom'))
