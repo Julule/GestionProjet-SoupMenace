@@ -123,13 +123,10 @@ def update(dt):
 
     next_box_time -= dt #enemies update
 
-<<<<<<< HEAD
-=======
     for i in cat:
         x, y = cat.pos
         x -= GAME_SPEED/8 * -dt
         cat.pos = x, y
->>>>>>> cbca2bdb8c03b2b80d58a88de8ac24dc10c0c19a
 
     if next_box_time <= 0:
         box = Actor("knife", anchor=('left', 'bottom'))
