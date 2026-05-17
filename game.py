@@ -3,6 +3,7 @@
 from random import randint
 from pgzero.actor import Actor
 import pgzrun
+import pygame # for introscreen time count
 
 
 #game bases // physics & settings - Groung & Gravity
@@ -13,8 +14,11 @@ GRAVITY = 200 #Pulls the hero downward after jumping
 
 NUMBER_OF_BACKGROUND = 2  #2 bg
 GAME_SPEED = 100 # speed of game movement
-JUMP_SPEED = 200 #upward speed when hero jump
-JUMP_HEIGHT = 350 #height of the hero's jump
+JUMP_SPEED = 400 #upward speed when hero jump
+JUMP_HEIGHT = 300 #height of the hero's jump
+
+game_state = "intro"
+start_time = 0
 
 #1. Hero initialisation
 hero = Actor("leek1", anchor=('middle', 'bottom')) # here leek1 is starting image
@@ -89,30 +93,44 @@ def draw():
     screen.clear()
 
     for bg in backgrounds_bottom:
-        bg.draw()
-
+            bg.draw()
     for bg in backgrounds_top:
-        bg.draw()
+            bg.draw()
 
-    cat.draw()
+    if game_state == "intro":
+        screen.draw.text("SoupMenace", center=(WIDTH/2, HEIGHT/3.1), fontname="nirakolu", fontsize=60, color="hotpink")
+        screen.draw.text("LEZGO", center=(WIDTH/2, HEIGHT/2), fontname="nirakolu", fontsize=90, color="plum1")
+        screen.draw.text("Little leek, you might end up in tonight soup \n Get awaaaay", center=(WIDTH/2, HEIGHT/1.3), fontname="nirakolu", fontsize=25, color="yellow2")
 
-    for knife in boxes:
-        knife.draw()
+    elif game_state == "game":
 
-    for pot in pots:
-        pot.draw()
+        cat.draw()
 
-    hero.draw()
+        for knife in boxes:
+            knife.draw()
 
-    #Life(heart)position 
-    for i in range(live):
-        heart.pos = (WIDTH - 30 - i*30,30)# last 30 is height consider top right (-30 is bottom right)
-        heart.width = 25
-        heart.height = 25
-        heart.draw()
+        for pot in pots:
+            pot.draw()
+
+        hero.draw()
+
+        #Life(heart)position 
+        for i in range(live):
+            heart.pos = (WIDTH - 30 - i*30,30)# last 30 is height consider top right (-30 is bottom right)
+            heart.width = 25
+            heart.height = 25
+            heart.draw()
+        
+        ###draw score
+        screen.draw.text("Score: " + str(score), (10, 10), color="white", fontsize=30)
     
-    ###draw score
-    screen.draw.text("Score: " + str(score), (10, 10), color="white", fontsize=30)
+    elif game_state == "win":
+        screen.draw.text("You", center=(WIDTH/2, HEIGHT/3), fontname="nirakolu", fontsize=80, color="plum1")
+        screen.draw.text("WIIIN", center=(WIDTH/2, HEIGHT/3.1), fontname="nirakolu", fontsize=100, color="hotpink")
+        
+    elif game_state == "over":
+        screen.draw.text("GAME", center=(WIDTH/2, HEIGHT/3), fontname="nirakolu", fontsize=80, color="plum1")
+        screen.draw.text("OVER", center=(WIDTH/2, HEIGHT/2.01), fontname="nirakolu", fontsize=60, color="black")
    
 
 
@@ -120,6 +138,11 @@ def update(dt):
 
     # knife update
     global pot, next_box_time, hero_speed, live, score
+
+    if game_state == "intro":
+        introscreen()
+        return
+    
     next_pot_time = randint(1, 2)
     next_box_time -= dt #enemies update
 
@@ -135,7 +158,7 @@ def update(dt):
         pots.append(pot)
         for pot in pots:
             x, y = pot.pos
-            x += GAME_SPEED/3 * -dt
+            x += GAME_SPEED/20 * -dt
             pot.pos = x, y
 
 
@@ -215,20 +238,34 @@ def update(dt):
         backgrounds_top.append(bg)
 
 
+# Hero jump
 def on_key_down(key):
     global hero_speed
-
-    # jump
     if key == keys.SPACE:
-
-
-        #if hero_speed <= 0:
-         #   hero_speed = JUMP_SPEED
-
-        #if hero_speed <= 0:
-        #if hero.y == GROUND: #the single jump
-        if key == keys.SPACE and hero.y >= GROUND: # the single jump
+        # Single jump
+        if key == keys.SPACE and hero.y >= GROUND: 
             hero_speed = JUMP_HEIGHT
 
+        # if hero_speed <= 0:
+        #     hero_speed = JUMP_SPEED
+
+        # #if hero_speed <= 0:
+        # #if hero.y == GROUND: #the single jump
+    
+# Game states for making the screens
+def introscreen():
+    global game_state
+    if pygame.time.get_ticks() - start_time > 6000:
+        game_state = "game"
+
+# def win():
+#     global game_state
+#     if 
+#         game_state = "win"
+
+# def gameover():
+#     global game_state
+#     if 
+#         game_state = "over"
 
 pgzrun.go()
