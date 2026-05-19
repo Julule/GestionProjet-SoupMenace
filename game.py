@@ -18,16 +18,24 @@ NUMBER_OF_BACKGROUND = 2  #2 bg
 GAME_SPEED = 100 # speed of game movement
 #<<<<<<< HEAD
 JUMP_SPEED = 200 #upward speed when hero jump
-#=======
-JUMP_HEIGHT = 350 #height of the hero's jump
+JUMP_HEIGHT = 300 #height of the hero's jump
 
 #1.Anemy box movement up-down 
-BOX_UP_DOWN_SPEED = 120 # speed of box up-down movement
-BOX_MIN_HEIGHT = 20 # minimum height box can go up
-BOX_MAX_HEIGHT = 200 # maximum height box can go up
+KNIFE_UP_DOWN_SPEED = 120 # speed of box up-down movement
+KNIFE_MIN_HEIGHT = 20 # minimum height box can go up
+KNIFE_MAX_HEIGHT = 300 # maximum height box can go up
+
+# enemies initialisations
+KNIFE_APPARTION = (5, 9) # enemy boxes appear every 2 to 5 second rendomly
+next_knife_time = randint(KNIFE_APPARTION[0], KNIFE_APPARTION[1])  #Chooses random starting spawn time
+knifes = []
+
+BOX_APPARTION = (2, 5)
+next_box_time = randint(BOX_APPARTION[0], BOX_APPARTION[1])
+boxes = []
 #>>>>>>> c3afb712b77265f547fb09642c37bd8225fb9298
 
-# hero initialisation
+#---------------------------- hero initialisation-------------------------
 hero = Actor("leek1", anchor=('middle', 'bottom')) # here leek1 is starting image
 hero.pos = (64, GROUND) #place hero at x = 64, y = G
 hero_speed = 0 #means hero can not move vertically
@@ -60,17 +68,14 @@ def animate_cat():
 
 clock.schedule_interval(animate_cat, 0.5) 
 
-#------------------------------------------------------------------------------------------------------
+#---------------------------------------Life Sprite---------------------------------------------------------
 
 #life count
 heart = Actor("heart")
 live = 3 #live score variable
 score = 0 # create a sore variable
+win_score = 10 #win/game over settings
 
-# enemies initialisations
-BOX_APPARTION = (2, 7) # enemy boxes appear every 2 to 5 second rendomly
-next_box_time = randint(BOX_APPARTION[0], BOX_APPARTION[1])  #Chooses random starting spawn time
-boxes = []
 
 # background inititalisation
 
@@ -79,12 +84,13 @@ backgrounds_top = []
 
 for n in range(NUMBER_OF_BACKGROUND):#run twice becz. number of bg = 2 bg
     bg_b = Actor("table", anchor=('left', 'top')) #bottom bg
-    bg_b.pos = n * WIDTH, 0
+    bg_b.pos = (n * WIDTH, 0)
     backgrounds_bottom.append(bg_b)
 
     bg_t = Actor("kitchen_background", anchor=('left', 'top')) # bg top
-    bg_t.pos = n * WIDTH, 0
+    bg_t.pos = (n * WIDTH, 0)
     backgrounds_top.append(bg_t)
+
 
 
 def draw():
@@ -101,74 +107,101 @@ def draw():
     for box in boxes:
         box.draw()
 
+    for knife in knifes:
+        knife.draw()
+
+
     hero.draw()
 
     #Life(heart)position 
     for i in range(live):
         heart.pos = (WIDTH - 30 - i*30,30)# last 30 is height consider top right (-30 is bottom right)
-        heart.width = 25
-        heart.height = 25
+        #heart.width = 25
+        #heart.height = 25
         heart.draw()
     
     ###draw score
-    screen.draw.text("Score: " + str(score), (10, 10), color="white", fontsize=30)
+    screen.draw.text(
+        "Score: " + str(score), 
+        (10, 10), color="white", 
+        fontsize=30)
    
 
-
+# ---------------- UPDATE ----------------
 def update(dt):
 
     # enemies update
     # box
-    global next_box_time, hero_speed, live, score
+    global next_box_time, next_knife_time, hero_speed, live, score
 
     next_box_time -= dt #enemies update
+    next_knife_time -= dt
 
     for i in cat:
         x, y = cat.pos
         x -= GAME_SPEED/8 * -dt
         cat.pos = x, y
 
-    if next_box_time <= 0:
-        box = Actor("knife", anchor=('left', 'bottom'))
-        box.pos = WIDTH, GROUND
+    if next_knife_time <= 0:
+        knife = Actor("knife", anchor=('left', 'bottom'))
+        knife.pos = (WIDTH, GROUND)
 
          # 2.Enemy OX RANDOM UP-DOWN MOVEMENT
-        box.direction = -1 # -1 means box starts going up first
-        box.jump_height = randint(BOX_MIN_HEIGHT,BOX_MAX_HEIGHT) # each box gets different height
-        boxes.append(box)
-        next_box_time = randint(BOX_APPARTION[0], BOX_APPARTION[1])
+        knife.direction = -1 # -1 means box starts going up first
+        knife.jump_height = randint(KNIFE_MIN_HEIGHT,KNIFE_MAX_HEIGHT) # each box gets different height
+        knifes.append(knife)
+        next_knife_time = randint(KNIFE_APPARTION[0], KNIFE_APPARTION[1])
 
-    for box in boxes[:]: #for each box inside this loop, box1,box2..
-        x, y = box.pos
+    # ---------------- UPDATE KNIVES ----------------
+    for knife in knifes[:]: #for each box inside this loop, box1,box2..
+        x, y = knife.pos
         x -= GAME_SPEED * dt
 
         #Box random up-down movement, box goes-up
-        y += box.direction * BOX_UP_DOWN_SPEED * dt #Move box up-down
+        y += knife.direction * KNIFE_UP_DOWN_SPEED * dt #Move box up-down
 
          # If box reaches its own random top height, then move down
-        if y <= GROUND - box.jump_height:
-            y = GROUND - box.jump_height
-            box.direction = 1
+        if y <= GROUND - knife.jump_height:
+            y = GROUND - knife.jump_height
+            knife.direction = 1
        
        # If box reaches ground again, then move up
         if y >= GROUND:
             y = GROUND
-            box.direction = -1
+            knife.direction = -1
 
-        box.pos = x, y
+        knife.pos = (x, y)
 
 
-        if box.colliderect(hero):
+        if knife.colliderect(hero):
             live -= 1
-            boxes.remove(box)
+            knifes.remove(knife)
 
             if live <= 0:
                 exit()
         
-        elif box.pos[0] <= -32:
-            boxes.remove(box)
+        elif knife.pos[0] <= -32: # elif knife.x <= -50:
+            knifes.remove(knife)
             score += 1
-  
+    # ---------------- SPAWN BOX ----------------
+    if next_box_time <= 0:
+        box = Actor("box", anchor=('left', 'bottom'))
+        box.pos = WIDTH, GROUND
+        boxes.append(box)
+        next_box_time = randint(BOX_APPARTION[0], BOX_APPARTION[1])
+
+    for box in boxes[:]:
+        x, y = box.pos
+        x -= GAME_SPEED * dt
+        box.pos = x, y
+
+        if box.colliderect(hero):
+            score += 1
+            boxes.remove(box)
+           
+        elif box.pos[0] <= -32: #elif box.x <= -50:
+            boxes.remove(box)
+           
 
     ### hero update
     #global hero_speed
