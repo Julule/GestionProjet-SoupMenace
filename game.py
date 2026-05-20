@@ -17,9 +17,7 @@ GRAVITY = 200 #Pulls the hero downward after jumping
 NUMBER_OF_BACKGROUND = 2  #2 bg
 GAME_SPEED = 100 # speed of game movement
 
-#<<<<<<< HEAD >>>>>>>>>>>>>>>>>>>>>>>>>>
 JUMP_SPEED = 200 #upward speed when hero jump
-#>>>>>>> 3c2bb59be59044916a9546ea281ea5d2c2bbdea5
 JUMP_HEIGHT = 300 #height of the hero's jump
 
 #1.Anemy box movement up-down 
@@ -35,7 +33,6 @@ knifes = []
 BOX_APPARTION = (2, 5)
 next_box_time = randint(BOX_APPARTION[0], BOX_APPARTION[1])
 boxes = []
-#>>>>>>> c3afb712b77265f547fb09642c37bd8225fb9298
 
 #---------------------------- hero initialisation-------------------------
 hero = Actor("leek1", anchor=('middle', 'bottom')) # here leek1 is starting image
