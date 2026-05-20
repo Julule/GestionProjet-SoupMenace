@@ -1,4 +1,3 @@
-# game data
 
 #from argparse import Action
 from random import randint
@@ -14,12 +13,10 @@ from random import randint
 pygame.init()
 pygame.mixer.init()
 
-# hero initialisation
 
+#game bases // physics & settings - Groung & Gravity
 WIDTH = 800
 HEIGHT = 600
-
-#game phtsics & settings - Groung & Gravity
 GROUND = 464 # y-position hero stand here (height 600)
 GRAVITY = 200 #Pulls the hero downward after jumping
 
@@ -40,7 +37,6 @@ BOX_MAX_HEIGHT = 200 # maximum height box can go up
 hero = Actor("leek1", anchor=('middle', 'bottom')) # here leek1 is starting image
 hero.pos = (64, GROUND) #place hero at x = 64, y = G
 hero_speed = 0 #means hero can not move vertically
-
 hero_image = ["leek1", "leek2", "leek3"]  #these 3 image stored for animation(gif)
 image_index = 0 #use this variable for hero,This keeps track of which image is currently being shown.
 
@@ -53,6 +49,21 @@ def animate_hero():#Defines a function that changes the hero’s image
 
 clock.schedule_interval(animate_hero, 0.2) #each 0.2 secondplay the function hero 
 
+#2. Knife init & movement up-down 
+BOX_UP_DOWN_SPEED = 120 # speed of knife up-down movement
+BOX_MIN_HEIGHT = 20 # minimum height knife can go up
+BOX_MAX_HEIGHT = 200 # maximum height knife can go up
+BOX_APPARTION = (2, 7) # enemy boxes appear every 2 to 5 second randomly
+next_box_time = randint(BOX_APPARTION[0], BOX_APPARTION[1])  # Chooses random starting spawn time
+boxes = []
+#>>>>>>> c3afb712b77265f547fb09642c37bd8225fb9298 # what is this line ?
+
+#3. Pots init
+pot = Actor("pot", anchor=('left', 'bottom'))
+pot.pos = (800, 465)
+pots = []
+
+#3. Cat init 
 #------------------------------------------ CAT SPRITES ------------------------------------------------
 
 cat = Actor("cat1", anchor=('middle', 'bottom')) 
@@ -69,13 +80,14 @@ def animate_cat():
 
 clock.schedule_interval(animate_cat, 0.5) 
 
-#------------------------------------------------------------------------------------------------------
+#---------------------------------------Life Sprite---------------------------------------------------------
 
-#life count
+#4. Life count
 heart = Actor("heart")
 live = 3 #live score variable
 score = 0 # create a sore variable
-game_over = False
+
+win_score = 10 #win/game over settings
 
 # enemies initialisations
 BOX_APPARTION = (2, 7) # enemy boxes appear every 2 to 5 second rendomly
@@ -86,14 +98,13 @@ boxes = []
 
 backgrounds_bottom = []
 backgrounds_top = []
-
 for n in range(NUMBER_OF_BACKGROUND):#run twice becz. number of bg = 2 bg
     bg_b = Actor("table", anchor=('left', 'top')) #bottom bg
-    bg_b.pos = n * WIDTH, 0
+    bg_b.pos = (n * WIDTH, 0)
     backgrounds_bottom.append(bg_b)
 
     bg_t = Actor("kitchen_background", anchor=('left', 'top')) # bg top
-    bg_t.pos = n * WIDTH, 0
+    bg_t.pos = (n * WIDTH, 0)
     backgrounds_top.append(bg_t)
 
 
@@ -101,15 +112,24 @@ def draw():
     screen.clear()
 
     for bg in backgrounds_bottom:
-        bg.draw()
-
+            bg.draw()
     for bg in backgrounds_top:
-        bg.draw()
+            bg.draw()
 
-    cat.draw()
+    if game_state == "intro":
+        screen.draw.text("SoupMenace", center=(WIDTH/2, HEIGHT/3.1), fontname="nirakolu", fontsize=60, color="hotpink")
+        screen.draw.text("LEZGO", center=(WIDTH/2, HEIGHT/2), fontname="nirakolu", fontsize=90, color="plum1")
+        screen.draw.text("Little leek, you might end up in tonight soup \n Get awaaaay", center=(WIDTH/2, HEIGHT/1.3), fontname="nirakolu", fontsize=25, color="yellow2")
 
-    for box in boxes:
-        box.draw()
+    elif game_state == "game":
+
+        cat.draw()
+
+        for knife in boxes:
+            knife.draw()
+
+        for pot in pots:
+            pot.draw()
 
     hero.draw()
 
@@ -123,13 +143,25 @@ def draw():
     ###draw score
     screen.draw.text("Score: " + str(score), (10, 10), color="white", fontsize=30)
 
+
+
+   
+
+# ---------------- UPDATE ----------------
+
 def update(dt):
 
     # enemies update
     # box
     global next_box_time, hero_speed, live, score
 
+    if game_state == "intro":
+        introscreen()
+        return
+    
+    next_pot_time = randint(1, 2)
     next_box_time -= dt #enemies update
+    next_knife_time -= dt
 
     for i in cat:
         x, y = cat.pos
@@ -142,7 +174,7 @@ def update(dt):
 
          # 2.Enemy OX RANDOM UP-DOWN MOVEMENT
         box.direction = -1 # -1 means box starts going up first
-        box.jump_height = randint(BOX_MIN_HEIGHT,BOX_MAX_HEIGHT) # each box gets different height
+        box.jump_speed = randint(BOX_MIN_HEIGHT,BOX_MAX_HEIGHT) # each box gets different height
         boxes.append(box)
         next_box_time = randint(BOX_APPARTION[0], BOX_APPARTION[1])
 
@@ -158,15 +190,15 @@ def update(dt):
             y = GROUND - box.jump_height
             box.direction = 1
        
-       # If box reaches ground again, then move up
+       # If knife reaches ground again, then move up
         if y >= GROUND:
             y = GROUND
-            box.direction = -1
+            knife.direction = -1
 
         box.pos = x, y
 
 
-        if box.colliderect(hero):
+        if knife.colliderect(hero):
             live -= 1
             boxes.remove(box)
 
@@ -212,20 +244,34 @@ def update(dt):
         backgrounds_top.append(bg)
 
 
+# Hero jump
 def on_key_down(key):
     global hero_speed
-
-    # jump
     if key == keys.SPACE:
-
-
-        #if hero_speed <= 0:
-         #   hero_speed = JUMP_SPEED
-
-        #if hero_speed <= 0:
-        #if hero.y == GROUND: #the single jump
-        if key == keys.SPACE and hero.y >= GROUND: # the single jump
+        # Single jump
+        if key == keys.SPACE and hero.y >= GROUND: 
             hero_speed = JUMP_SPEED
 
+        # if hero_speed <= 0:
+        #     hero_speed = JUMP_SPEED
+
+        # #if hero_speed <= 0:
+        # #if hero.y == GROUND: #the single jump
+    
+# Game states for making the screens
+def introscreen():
+    global game_state
+    if pygame.time.get_ticks() - start_time > 6000:
+        game_state = "game"
+
+# def win():
+#     global game_state
+#     if 
+#         game_state = "win"
+
+# def gameover():
+#     global game_state
+#     if 
+#         game_state = "over"
 
 pgzrun.go()
