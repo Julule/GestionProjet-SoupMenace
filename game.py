@@ -4,6 +4,15 @@
 from random import randint
 from pgzero.actor import Actor
 import pgzrun
+import pygame
+import sys
+from pgzero.actor import Actor
+from pgzero.builtins import *
+import pgzero.screen
+screen : pgzero.screen.Screen
+from random import randint
+pygame.init()
+pygame.mixer.init()
 
 # hero initialisation
 
@@ -17,9 +26,8 @@ GRAVITY = 200 #Pulls the hero downward after jumping
 NUMBER_OF_BACKGROUND = 2  #2 bg
 GAME_SPEED = 100 # speed of game movement
 #<<<<<<< HEAD
-JUMP_SPEED = 200 #upward speed when hero jump
-#=======
-JUMP_HEIGHT = 350 #height of the hero's jump
+JUMP_SPEED = 300 #upward speed when hero jump
+
 
 #1.Anemy box movement up-down 
 BOX_UP_DOWN_SPEED = 120 # speed of box up-down movement
@@ -27,7 +35,8 @@ BOX_MIN_HEIGHT = 20 # minimum height box can go up
 BOX_MAX_HEIGHT = 200 # maximum height box can go up
 #>>>>>>> c3afb712b77265f547fb09642c37bd8225fb9298
 
-# hero initialisation
+#--------------------------------------- HERO INITIALISATION ---------------------------------------------
+
 hero = Actor("leek1", anchor=('middle', 'bottom')) # here leek1 is starting image
 hero.pos = (64, GROUND) #place hero at x = 64, y = G
 hero_speed = 0 #means hero can not move vertically
@@ -66,6 +75,7 @@ clock.schedule_interval(animate_cat, 0.5)
 heart = Actor("heart")
 live = 3 #live score variable
 score = 0 # create a sore variable
+game_over = False
 
 # enemies initialisations
 BOX_APPARTION = (2, 7) # enemy boxes appear every 2 to 5 second rendomly
@@ -112,8 +122,6 @@ def draw():
     
     ###draw score
     screen.draw.text("Score: " + str(score), (10, 10), color="white", fontsize=30)
-   
-
 
 def update(dt):
 
@@ -217,7 +225,7 @@ def on_key_down(key):
         #if hero_speed <= 0:
         #if hero.y == GROUND: #the single jump
         if key == keys.SPACE and hero.y >= GROUND: # the single jump
-            hero_speed = JUMP_HEIGHT
+            hero_speed = JUMP_SPEED
 
 
 pgzrun.go()
